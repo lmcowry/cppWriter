@@ -1,0 +1,2 @@
+currently running
+changing 4th word in TruePartialPlusGuess, regardless of if it's the 4th word in TrueFull
