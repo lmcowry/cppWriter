@@ -128,8 +128,12 @@ void writeGuessWordToFile()
 
 void checkTrueVsGuess()
 {
+    std::cout << "gGuessWord = " + gGuessWord + " and gCurrentTrueWord.word = " + gCurrentTrueWord.word << '\n';
+    std::cout << (gGuessWord == gCurrentTrueWord.word) << '\n';
     if (gGuessWord == gCurrentTrueWord.word)
     {
+        std::cout << "they're equal" << '\n';
+
         //open TruePartial
         std::ofstream outf2{ "/home/samuel_sewall/cppWriter/TruePartial.txt", std::ios::app };
         if (!outf2)
@@ -149,14 +153,16 @@ void checkTrueVsGuess()
             std::exit(EXIT_FAILURE);
         }
         std::string strInput;
+        int counter = 0;
         while (inf)
         {
             // read stuff from the file into a string
-            
+            std::getline(inf, strInput);
             inf >> strInput;
-            std::cout << strInput;
+            counter++;
+            std::cout << counter << '\n';
         }
-        std::cout << "read TrueFull" << '\n';
+        std::cout << '\n' << "read TrueFull" << '\n';
         std::cout << strInput << '\n';
     
         // split strInput into vector of strings, split by spaces
