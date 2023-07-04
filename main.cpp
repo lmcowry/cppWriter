@@ -88,7 +88,7 @@ void getVocab()
 void getCurrentWordAndWordNumber()
 {
     
-    std::string sql("SELECT * FROM CURRENT_TRUE_WORD WHERE ID = (SELECT MAX(ID) FROM CURRENT_TRUE_WORD)");
+    std::string sql("SELECT ROWID, WORD FROM CURRENT_TRUE_WORD WHERE ROWID = (SELECT MAX(ROWID) FROM CURRENT_TRUE_WORD)");
     int rc = sqlite3_exec(gDB, sql.c_str(), &callbackWithClass, static_cast<void*>(&gCurrentWords), NULL);
     parseResponseCode(rc, "Operation OK!", "Error " + sql);
     gCurrentTrueWord = gCurrentWords[0];
@@ -128,6 +128,7 @@ void writeGuessWordToFile()
 
 void checkTrueVsGuess()
 {
+    // if they're the same, then need to get new current true word
     std::cout << "gGuessWord = " + gGuessWord + " and gCurrentTrueWord.word = " + gCurrentTrueWord.word << '\n';
     std::cout << (gGuessWord == gCurrentTrueWord.word) << '\n';
     if (gGuessWord == gCurrentTrueWord.word)
@@ -172,7 +173,9 @@ void checkTrueVsGuess()
         std::vector<std::string> v;
         int wordCounter = 1;
 
-        while (getline(ss, s, ' ') || wordCounter != gCurrentTrueWord.id)
+        // std::cout << "word id is " << gCurrentTrueWord.id << '\n';
+
+        while (getline(ss, s, ' ')) // could add "|| wordCounter != gCurrentTrueWord.id" 
         {
             v.push_back(s);
             wordCounter++;
@@ -187,6 +190,88 @@ void checkTrueVsGuess()
 
 }
 
+int getWordCount(std::string filePath)
+{
+    //read TrueFull to get new current word
+    std::ifstream inf{ filePath };
+    if (!inf)
+    {
+        // Print an error and exit
+        std::cerr << "Uh oh, text file could not be opened for reading!\n";
+        std::exit(EXIT_FAILURE);
+    }
+    std::string strInput;
+    int counter = 0;
+    while (inf)
+    {
+        // read stuff from the file into a string
+        std::getline(inf, strInput);
+        inf >> strInput;
+        counter++;
+        std::cout << counter << '\n';
+    }
+    std::cout << "read " + filePath << '\n';
+    std::cout << strInput << '\n';
+
+    // split strInput into vector of strings, split by spaces
+    //https://www.geeksforgeeks.org/split-string-by-space-into-vector-in-cpp-stl/#
+    std::string s;
+    std::stringstream ss(strInput);
+    std::vector<std::string> v;
+    int wordCounter = 1;
+
+    // std::cout << "word id is " << gCurrentTrueWord.id << '\n';
+
+    while (getline(ss, s, ' ')) // could add "|| wordCounter != gCurrentTrueWord.id" 
+    {
+        wordCounter++;
+    }
+
+    return wordCounter;
+}
+
+std::string getWord(std::string filePath, int wordNumber)
+{
+
+    //read TrueFull to get new current word
+    std::ifstream inf{ filePath };
+    if (!inf)
+    {
+        // Print an error and exit
+        std::cerr << "Uh oh, text file could not be opened for reading!\n";
+        std::exit(EXIT_FAILURE);
+    }
+    std::string strInput;
+    int counter = 0;
+    while (inf)
+    {
+        // read stuff from the file into a string
+        std::getline(inf, strInput);
+        inf >> strInput;
+        counter++;
+        std::cout << counter << '\n';
+    }
+    std::cout << "read " + filePath << '\n';
+    std::cout << strInput << '\n';
+
+    // split strInput into vector of strings, split by spaces
+    //https://www.geeksforgeeks.org/split-string-by-space-into-vector-in-cpp-stl/#
+    std::string s;
+    std::stringstream ss(strInput);
+    std::vector<std::string> v;
+    int wordCounter = 1;
+
+    // std::cout << "word id is " << gCurrentTrueWord.id << '\n';
+
+    while (getline(ss, s, ' ')) // could add "|| wordCounter != gCurrentTrueWord.id" 
+    {
+        v.push_back(s);
+        wordCounter++;
+    }
+
+    return v[wordCounter];
+}
+
 
 int main()
 {
@@ -196,7 +281,27 @@ int main()
     gGuessWord = gDBWords[getRandomNumber()];
     deleteTruePartialPlusGuessThenMakeNew();
     writeGuessWordToFile();
-    checkTrueVsGuess();
+    if (gGuessWord == gCurrentTrueWord.word)
+    {
+        //update TruePartial.txt
+        system("cp /home/samuel_sewall/cppWriter/TruePartialPlusGuess.txt /home/samuel_sewall/cppWriter/TruePartial.txt");
+
+        //read TruePartial.txt to get word count
+        //could instead execute "wc TruePartial.txt -w", but would have to somehow get that output
+        int wordCount = getWordCount("/home/samuel_sewall/cppWriter/TruePartial.txt");
+        std::cout << "TruePartial word count = " + wordCount << '\n';
+
+        //read next word in TrueFull.txt
+        std::string next_current_true_word = getWord("/home/samuel_sewall/cppWriter/TrueFull.txt", wordCount);
+        std::cout << "next word read from TrueFull.txt = " + next_current_true_word << '\n';
+
+        //update current_true_word
+        std::string sql("INSERT INTO CURRENT_TRUE_WORD VALUES('" + next_current_true_word + "');");
+        int rc = sqlite3_exec(gDB, sql.c_str(), &callback, static_cast<void*>(&gDBWords), NULL); //including callback, but shouldn't be called, since this is an insert
+        parseResponseCode(rc, "Operation OK!", "Error " + sql);
+
+
+    }
     sqlite3_close(gDB);
     return 0;
 }
