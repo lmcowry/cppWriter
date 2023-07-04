@@ -227,7 +227,7 @@ int getWordCount(std::string filePath)
         wordCounter++;
     }
 
-    return wordCounter;
+    return wordCounter - 1; //why do I have to -1 this?
 }
 
 std::string getWord(std::string filePath, int wordNumber)
@@ -259,15 +259,21 @@ std::string getWord(std::string filePath, int wordNumber)
     std::string s;
     std::stringstream ss(strInput);
     std::vector<std::string> v;
-    int wordCounter = 1;
+    int wordCounter = 0;
 
     // std::cout << "word id is " << gCurrentTrueWord.id << '\n';
 
+    std::cout << "s is " << s << '\n';
+    std::cout << "ss is " << s << '\n';
+
     while (getline(ss, s, ' ')) // could add "|| wordCounter != gCurrentTrueWord.id" 
     {
+        std::cout << "s in the while loop is " << s << '\n';
         v.push_back(s);
         wordCounter++;
     }
+
+    std::cout << "word is " << v[wordCounter] << '\n';
 
     return v[wordCounter];
 }
@@ -281,6 +287,7 @@ int main()
     gGuessWord = gDBWords[getRandomNumber()];
     deleteTruePartialPlusGuessThenMakeNew();
     writeGuessWordToFile();
+    std::cout << "gGuessWord is " << gGuessWord << " and currentTrueWord is " << gCurrentTrueWord.word << '\n';
     if (gGuessWord == gCurrentTrueWord.word)
     {
         //update TruePartial.txt
@@ -289,7 +296,7 @@ int main()
         //read TruePartial.txt to get word count
         //could instead execute "wc TruePartial.txt -w", but would have to somehow get that output
         int wordCount = getWordCount("/home/samuel_sewall/cppWriter/TruePartial.txt");
-        std::cout << "TruePartial word count = " + wordCount << '\n';
+        std::cout << "TruePartial word count = " << wordCount << '\n';
 
         //read next word in TrueFull.txt
         std::string next_current_true_word = getWord("/home/samuel_sewall/cppWriter/TrueFull.txt", wordCount);
