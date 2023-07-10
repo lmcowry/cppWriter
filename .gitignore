@@ -1,0 +1,4 @@
+build/*
+db/*
+!*/explain.txt
+!db/*.sql

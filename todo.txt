@@ -1,0 +1,13 @@
+
+needed:
+is (gGuessWord == gCurrentTrueWord.word) ever evaluating to true
+
+nice to haves:
+setup ssh key so that VS Code logs right in
+    7/1/23 - done
+make it so that VS code goes to this specific folder on login
+how to view difference between local and remote branch
+
+look into doing exit statements instead of return -1
+
+apparently C++ doesn't need to wrap db connection/closing in a try catch finally block because of something called RAII. Is this true, if so, why? And does that work even for 

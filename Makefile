@@ -3,7 +3,7 @@
 #variable := value
 #variable = value
 
-projectPath := /home/samuel_sewall/cppWriter
+projectPath := /home/samuel_sewall/cppWriter/project
 cppWriterFile := $(projectPath)/src/cppWriter.cpp
 researchFile := $(projectPath)/src/research.cpp
 testFile := $(projectPath)/src/tests.cpp
@@ -20,12 +20,12 @@ researchExecutable: $(researchFile)
 
 gtests: $(testFile) $(cppWriterFile)
 	g++ -Wextra -Werror -O3 -std=c++17 -pthread -g -D GTEST \
-    -I"$(projectPath)/gtestTry2/googletest/googletest/include" -I"$(projectPath)/gtestTry2/googletest/googlemock/include" \
+    -I"$(projectPath)/googleCode/googletest/googletest/include" -I"$(projectPath)/googleCode/googletest/googlemock/include" \
     -o $(projectPath)/build/a \
     -l sqlite3 \
     $(testFile) \
     $(cppWriterFile) \
-    $(projectPath)/gtestTry2/bin/libgtest.a $(projectPath)/gtestTry2/bin/libgtest_main.a \
+    $(projectPath)/googleCode/bin/libgtest.a $(projectPath)/googleCode/bin/libgtest_main.a \
 	&& $(projectPath)/build/a
 
 clean:

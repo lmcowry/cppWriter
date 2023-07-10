@@ -1,0 +1,11 @@
+to generate ssh key so that I don't have to put in my password (twice) in VS Code everytime I login:
+on local computer:
+    ssh-keygen -t ed25519
+    ssh-copy-id samuel_sewall@173.230.128.108
+that's it. instructions from here: https://www.linode.com/docs/guides/use-public-key-authentication-with-ssh/
+
+
+======
+
+installed cmake:
+sudo apt install cmake

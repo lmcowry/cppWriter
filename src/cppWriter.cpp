@@ -7,9 +7,9 @@ std::vector<DatabaseWord> gCurrentWords;
 DatabaseWord gCurrentTrueWord;
 std::string gGuessWord;
 
-std::string truePartialFile = "/home/samuel_sewall/cppWriter/TruePartial.txt";
-std::string truePartialPlusGuessFile = "/home/samuel_sewall/cppWriter/TruePartialPlusGuess.txt";
-std::string trueFullFile = "/home/samuel_sewall/cppWriter/TrueFull.txt";
+std::string truePartialFile = "/home/samuel_sewall/cppWriter/project/trueText/TruePartial.txt";
+std::string truePartialPlusGuessFile = "/home/samuel_sewall/cppWriter/project/trueText/TruePartialPlusGuess.txt";
+std::string trueFullFile = "/home/samuel_sewall/cppWriter/project/trueText/TrueFull.txt";
 
 static int callback(void* pObject, int columns, char** columnValues, char** columnNames)
 {
@@ -43,7 +43,7 @@ static int callbackWithClass(void* pObject, int columns, char** columnValues, ch
 void connectToDatabase()
 {
     int exit = 0;
-    exit = sqlite3_open("/home/samuel_sewall/cppWriter/db/CppWriterDB.db", &gDB); // whatever I put here, it'll create a new database
+    exit = sqlite3_open("/home/samuel_sewall/cppWriter/project/db/CppWriterDB.db", &gDB); // whatever I put here, it'll create a new database
 
     if (exit)
     {
@@ -100,14 +100,14 @@ int getRandomNumber()
 
 void deleteTruePartialPlusGuessThenMakeNew()
 {
-    system("rm /home/samuel_sewall/cppWriter/TruePartialPlusGuess.txt");
-    system("cp /home/samuel_sewall/cppWriter/TruePartial.txt /home/samuel_sewall/cppWriter/TruePartialPlusGuess.txt");
+    system("rm /home/samuel_sewall/cppWriter/project/trueText/TruePartialPlusGuess.txt");
+    system("cp /home/samuel_sewall/cppWriter/project/trueText/TruePartial.txt /home/samuel_sewall/cppWriter/project/trueText/TruePartialPlusGuess.txt");
 }
 
 void writeGuessWordToFile()
 {
     //from https://www.learncpp.com/cpp-tutorial/basic-file-io/
-    std::ofstream outf{ "/home/samuel_sewall/cppWriter/TruePartialPlusGuess.txt", std::ios::app };
+    std::ofstream outf{ "/home/samuel_sewall/cppWriter/project/trueText/TruePartialPlusGuess.txt", std::ios::app };
 
     if (!outf)
     {
@@ -127,7 +127,7 @@ void checkTrueVsGuess()
         std::cout << "they're equal" << '\n';
 
         //open TruePartial
-        std::ofstream outf2{ "/home/samuel_sewall/cppWriter/TruePartial.txt", std::ios::app };
+        std::ofstream outf2{ "/home/samuel_sewall/cppWriter/project/trueText/TruePartial.txt", std::ios::app };
         if (!outf2)
         {
             std::cerr << "Uh oh, text file could not be opened for writing!\n";
@@ -137,7 +137,7 @@ void checkTrueVsGuess()
         outf2 << ' ' << gGuessWord;
 
         //read TrueFull to get new current word
-        std::ifstream inf{ "/home/samuel_sewall/cppWriter/TrueFull.txt" };
+        std::ifstream inf{ "/home/samuel_sewall/cppWriter/project/trueText/TrueFull.txt" };
         if (!inf)
         {
             // Print an error and exit
@@ -286,7 +286,7 @@ int wordCounter(std::string filename)
 
 bool checkIfBeginning()
 {
-    return (wordCounter("/home/samuel_sewall/cppWriter/TruePartial.txt") == 0) ? true : false;
+    return (wordCounter("/home/samuel_sewall/cppWriter/project/trueText/TruePartial.txt") == 0) ? true : false;
 }
 
 bool checkIfEnd()
@@ -299,7 +299,7 @@ bool checkIfEnd()
 void makeCurrentTrueWord(int wordCount)
 {
     //read next word in TrueFull.txt
-    std::string next_current_true_word = getWord("/home/samuel_sewall/cppWriter/TrueFull.txt", wordCount);
+    std::string next_current_true_word = getWord("/home/samuel_sewall/cppWriter/project/trueText/TrueFull.txt", wordCount);
     std::cout << "next word read from TrueFull.txt = " + next_current_true_word << '\n';
 
     //update current_true_word
@@ -338,11 +338,11 @@ int main()
         if (gGuessWord == gCurrentTrueWord.word)
         {
             //update TruePartial.txt
-            system("cp /home/samuel_sewall/cppWriter/TruePartialPlusGuess.txt /home/samuel_sewall/cppWriter/TruePartial.txt");
+            system("cp /home/samuel_sewall/cppWriter/project/trueText/TruePartialPlusGuess.txt /home/samuel_sewall/cppWriter/project/trueText/TruePartial.txt");
 
             //read TruePartial.txt to get word count
             //could instead execute "wc TruePartial.txt -w", but would have to somehow get that output
-            int wordCount = getWordCount("/home/samuel_sewall/cppWriter/TruePartial.txt");
+            int wordCount = getWordCount("/home/samuel_sewall/cppWriter/project/trueText/TruePartial.txt");
             std::cout << "TruePartial word count = " << wordCount << '\n';
 
             makeCurrentTrueWord(wordCount);
