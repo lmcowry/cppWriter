@@ -1,2 +1,22 @@
-currently running
-changing 4th word in TruePartialPlusGuess, regardless of if it's the 4th word in TrueFull
+finally set up unit test infrastructure. needed files:
+
+
+-----
+my source files:
+cppWriter/src/tests.cpp
+cppWriter/src/cppWriter.cpp
+
+binaries (in this case, archives) from when I built gtests manually from source
+/home/samuel_sewall/cppWriter/gtestTry2/bin/libgtest.a 
+/home/samuel_sewall/cppWriter/gtestTry2/bin/libgtest_main.a
+
+header files for gtests (not sure why this wouldn't come along with the binaries):
+googletest/googletest/include files
+googletest/googlemock/include files
+
+-----
+
+
+
+goal with having gtests is 1) learn more about them, 2) eventually learn Cmake so that I can do this more normally, but most relevantly 3) know which of my functions I can depend upon
+and probably 4) encourage me to write more organized code
