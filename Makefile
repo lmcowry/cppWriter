@@ -3,7 +3,7 @@
 #variable := value
 #variable = value
 
-projectPath := /home/samuel_sewall/cppWriter/project
+projectPath := .
 cppWriterFile := $(projectPath)/src/cppWriter.cpp
 researchFile := $(projectPath)/src/research.cpp
 testFile := $(projectPath)/src/tests.cpp
