@@ -9,3 +9,14 @@ that's it. instructions from here: https://www.linode.com/docs/guides/use-public
 
 installed cmake:
 sudo apt install cmake
+
+
+======
+
+necessary dependency: sqlite3:
+
+sudo apt install sqlite3
+sudo apt-get install libsqlite3-dev
+cat db/backup.sql | sqlite3 db/CppWriterDB.db
+
+for some reason, raspberry pi required "-l" to be later in the g++ command, then it worked
