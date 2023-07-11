@@ -128,6 +128,7 @@ std::string getWord(std::string filePath, int wordNumber)
 
 int main()
 {
-    std::string word = getWord("/home/samuel_sewall/cppWriter/TrueFull.txt", 0);
-    std::cout << word << '\n';
+    // std::string word = getWord("/home/samuel_sewall/cppWriter/TrueFull.txt", 0);
+    // std::cout << word << '\n';
+    system("pwd");
 }

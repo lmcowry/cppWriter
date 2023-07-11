@@ -8,6 +8,6 @@ namespace
 {
     TEST(MyOwnTest, Positive)
     {
-        EXPECT_EQ(2, wordCounter("/home/samuel_sewall/cppWriter/project/testText/testText.txt"));
+        EXPECT_EQ(2, wordCounter("./testText/testText.txt"));
     }
 }

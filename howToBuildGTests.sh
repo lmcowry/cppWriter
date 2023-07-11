@@ -31,12 +31,12 @@ time ar -rv bin/libgmock_main.a bin/gmock_main.o
 
 time ( \
     time g++ -Wall -Wextra -Werror -O3 -std=c++17 -pthread \
-    -I"/home/samuel_sewall/cppWriter/gtestTry2/googletest/googletest/include" -I"/home/samuel_sewall/cppWriter/gtestTry2/googletest/googlemock/include" \
-    /home/samuel_sewall/cppWriter/gtestTry2-MyTests/myown_unittest.cpp \
-    /home/samuel_sewall/cppWriter/gtestTry2-MyTests/myown.cpp \
-    /home/samuel_sewall/cppWriter/gtestTry2/bin/libgtest.a /home/samuel_sewall/cppWriter/gtestTry2/bin/libgtest_main.a \
-    -o /home/samuel_sewall/cppWriter/gtestTry2/bin/a \
-    && time /home/samuel_sewall/cppWriter/gtestTry2/bin/a \
+    -I"./googletest/googletest/include" -I"./googletest/googlemock/include" \
+    .-MyTests/myown_unittest.cpp \
+    .-MyTests/myown.cpp \
+    ./bin/libgtest.a ./bin/libgtest_main.a \
+    -o ./bin/a \
+    && time ./bin/a \
 )
 
 # and then for my cppWriter.cpp file:
@@ -44,10 +44,10 @@ time ( \
 
 time ( \
     time g++ -Wextra -Werror -O3 -std=c++17 -pthread -g -D GTEST \
-    -I"/home/samuel_sewall/cppWriter/gtestTry2/googletest/googletest/include" -I"/home/samuel_sewall/cppWriter/gtestTry2/googletest/googlemock/include" \
+    -I"./googletest/googletest/include" -I"./googletest/googlemock/include" \
     /home/samuel_sewall/cppWriter/src/tests.cpp \
     /home/samuel_sewall/cppWriter/src/cppWriter.cpp \
-    /home/samuel_sewall/cppWriter/gtestTry2/bin/libgtest.a /home/samuel_sewall/cppWriter/gtestTry2/bin/libgtest_main.a \
+    ./bin/libgtest.a ./bin/libgtest_main.a \
     -o /home/samuel_sewall/cppWriter/build/a \
     -l sqlite3 \
     && time /home/samuel_sewall/cppWriter/build/a \
@@ -58,11 +58,12 @@ time ( \
 g++ -o ./executable src/cppWriter.cpp -l sqlite3 -g
 
 #here's the minimum for building and running the gtest executable
+#todo: correct the below
 g++ -Wextra -Werror -O3 -std=c++17 -pthread -g -D GTEST \
-    -I"/home/samuel_sewall/cppWriter/gtestTry2/googletest/googletest/include" -I"/home/samuel_sewall/cppWriter/gtestTry2/googletest/googlemock/include" \
-    -o /home/samuel_sewall/cppWriter/build/a \
+    -I"./googletest/googletest/include" -I"./googletest/googlemock/include" \
+    -o ../build/a \
+    ../src/tests.cpp \
+    ../src/cppWriter.cpp \
+    ./bin/libgtest.a ./bin/libgtest_main.a \
     -l sqlite3 \
-    /home/samuel_sewall/cppWriter/src/tests.cpp \
-    /home/samuel_sewall/cppWriter/src/cppWriter.cpp \
-    /home/samuel_sewall/cppWriter/gtestTry2/bin/libgtest.a /home/samuel_sewall/cppWriter/gtestTry2/bin/libgtest_main.a \
-&& /home/samuel_sewall/cppWriter/build/a
+&& ../build/a

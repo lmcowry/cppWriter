@@ -22,10 +22,10 @@ gtests: $(testFile) $(cppWriterFile)
 	g++ -Wextra -Werror -O3 -std=c++17 -pthread -g -D GTEST \
     -I"$(projectPath)/googleCode/googletest/googletest/include" -I"$(projectPath)/googleCode/googletest/googlemock/include" \
     -o $(projectPath)/build/a \
-    -l sqlite3 \
     $(testFile) \
     $(cppWriterFile) \
     $(projectPath)/googleCode/bin/libgtest.a $(projectPath)/googleCode/bin/libgtest_main.a \
+	-l sqlite3 \
 	&& $(projectPath)/build/a
 
 clean:
