@@ -1,16 +1,5 @@
 #include "cppWriter.h"
 
-sqlite3* gDB;
-
-std::vector<std::string> gDBWords;
-std::vector<DatabaseWord> gCurrentWords;
-DatabaseWord gCurrentTrueWord;
-std::string gGuessWord;
-
-std::string truePartialFile = "./trueText/TruePartial.txt";
-std::string truePartialPlusGuessFile = "./trueText/TruePartialPlusGuess.txt";
-std::string trueFullFile = "./trueText/TrueFull.txt";
-
 static int callback(void* pObject, int columns, char** columnValues, char** columnNames)
 {
     //https://stackoverflow.com/questions/29979782/c-correct-way-to-handle-sqlite3-prepare-and-sqlite3-step-errors
@@ -69,7 +58,7 @@ void parseResponseCode(int rc, std::string successMessage, std::string errorMess
     }
 }
 
-void getVocab()
+void getKnownWordsFromDatabase()
 {
     std::string sql("SELECT * FROM WORDS_I_KNOW");
     char* error = nullptr;
@@ -77,7 +66,7 @@ void getVocab()
     parseResponseCode(rc, "Operation OK!", "Error " + sql, error);
 }
 
-void getCurrentWordAndWordNumber()
+void getCurrentWordAndWordNumberFromDatabase()
 {
     
     std::string sql("SELECT ROWID, WORD FROM CURRENT_TRUE_WORD WHERE ROWID = (SELECT MAX(ROWID) FROM CURRENT_TRUE_WORD)");
@@ -118,107 +107,108 @@ void writeGuessWordToFile()
     outf << ' ' << gGuessWord;
 }
 
-void checkTrueVsGuess()
-{
-    // if they're the same, then need to get new current true word
-    std::cout << "gGuessWord = " + gGuessWord + " and gCurrentTrueWord.word = " + gCurrentTrueWord.word << '\n';
-    if (gGuessWord == gCurrentTrueWord.word)
-    {
-        std::cout << "they're equal" << '\n';
+// void checkTrueVsGuess()
+// {
+//     // if they're the same, then need to get new current true word
+//     std::cout << "gGuessWord = " + gGuessWord + " and gCurrentTrueWord.word = " + gCurrentTrueWord.word << '\n';
+//     if (gGuessWord == gCurrentTrueWord.word)
+//     {
+//         std::cout << "they're equal" << '\n';
 
-        //open TruePartial
-        std::ofstream outf2{ "./trueText/TruePartial.txt", std::ios::app };
-        if (!outf2)
-        {
-            std::cerr << "Uh oh, text file could not be opened for writing!\n";
-            std::exit(EXIT_FAILURE);
-        }
-        //add guessWord to TruePartial
-        outf2 << ' ' << gGuessWord;
+//         //open TruePartial
+//         std::ofstream outf2{ "./trueText/TruePartial.txt", std::ios::app };
+//         if (!outf2)
+//         {
+//             std::cerr << "Uh oh, text file could not be opened for writing!\n";
+//             std::exit(EXIT_FAILURE);
+//         }
+//         //add guessWord to TruePartial
+//         outf2 << ' ' << gGuessWord;
 
-        //read TrueFull to get new current word
-        std::ifstream inf{ "./trueText/TrueFull.txt" };
-        if (!inf)
-        {
-            // Print an error and exit
-            std::cerr << "Uh oh, text file could not be opened for reading!\n";
-            std::exit(EXIT_FAILURE);
-        }
-        std::string strInput;
-        int counter = 0;
-        while (inf)
-        {
-            // read stuff from the file into a string
-            std::getline(inf, strInput);
-            inf >> strInput;
-            counter++;
-        }
+//         //read TrueFull to get new current word
+//         std::ifstream inf{ "./trueText/TrueFull.txt" };
+//         if (!inf)
+//         {
+//             // Print an error and exit
+//             std::cerr << "Uh oh, text file could not be opened for reading!\n";
+//             std::exit(EXIT_FAILURE);
+//         }
+//         std::string strInput;
+//         int counter = 0;
+//         while (inf)
+//         {
+//             // read stuff from the file into a string
+//             std::getline(inf, strInput);
+//             inf >> strInput;
+//             counter++;
+//         }
     
-        // split strInput into vector of strings, split by spaces
-        //https://www.geeksforgeeks.org/split-string-by-space-into-vector-in-cpp-stl/#
-        std::string s;
-        std::stringstream ss(strInput);
-        std::vector<std::string> v;
-        int wordCounter = 1;
+//         // split strInput into vector of strings, split by spaces
+//         //https://www.geeksforgeeks.org/split-string-by-space-into-vector-in-cpp-stl/#
+//         std::string s;
+//         std::stringstream ss(strInput);
+//         std::vector<std::string> v;
+//         int wordCounter = 1;
 
-        // std::cout << "word id is " << gCurrentTrueWord.id << '\n';
+//         // std::cout << "word id is " << gCurrentTrueWord.id << '\n';
 
-        while (getline(ss, s, ' ')) // could add "|| wordCounter != gCurrentTrueWord.id" 
-        {
-            v.push_back(s);
-            wordCounter++;
-        }
+//         while (getline(ss, s, ' ')) // could add "|| wordCounter != gCurrentTrueWord.id" 
+//         {
+//             v.push_back(s);
+//             wordCounter++;
+//         }
 
-        std::cout << "new word is: " << v[wordCounter] << '\n';
+//         std::cout << "new word is: " << v[wordCounter] << '\n';
 
         
 
-        //insert that as new CURRENT_TRUE_WORD
-    }
+//         //insert that as new CURRENT_TRUE_WORD
+//     }
 
-}
+// }
 
-int getWordCount(std::string filePath)
+// int getWordCount(std::string filePath)
+// {
+//     //read TrueFull to get new current word
+//     std::ifstream inf{ filePath };
+//     if (!inf)
+//     {
+//         // Print an error and exit
+//         std::cerr << "Uh oh, text file could not be opened for reading!\n";
+//         std::exit(EXIT_FAILURE);
+//     }
+//     std::string strInput;
+//     int counter = 0;
+//     while (inf)
+//     {
+//         // read stuff from the file into a string
+//         std::getline(inf, strInput);
+//         inf >> strInput;
+//         counter++;
+//     }
+//     std::cout << "read " + filePath << '\n';
+
+//     // split strInput into vector of strings, split by spaces
+//     //https://www.geeksforgeeks.org/split-string-by-space-into-vector-in-cpp-stl/#
+//     std::string s;
+//     std::stringstream ss(strInput);
+//     std::vector<std::string> v;
+//     int wordCounter = 1;
+
+//     // std::cout << "word id is " << gCurrentTrueWord.id << '\n';
+
+//     while (getline(ss, s, ' ')) // could add "|| wordCounter != gCurrentTrueWord.id" 
+//     {
+//         wordCounter++;
+//     }
+
+//     return wordCounter - 1; //why do I have to -1 this?
+// }
+
+// zero indexed
+// if given wordNumber greater than number of words in file, will return last word
+std::string getWordFromFileByWordNumber(std::string filePath, int wordNumber)
 {
-    //read TrueFull to get new current word
-    std::ifstream inf{ filePath };
-    if (!inf)
-    {
-        // Print an error and exit
-        std::cerr << "Uh oh, text file could not be opened for reading!\n";
-        std::exit(EXIT_FAILURE);
-    }
-    std::string strInput;
-    int counter = 0;
-    while (inf)
-    {
-        // read stuff from the file into a string
-        std::getline(inf, strInput);
-        inf >> strInput;
-        counter++;
-    }
-    std::cout << "read " + filePath << '\n';
-
-    // split strInput into vector of strings, split by spaces
-    //https://www.geeksforgeeks.org/split-string-by-space-into-vector-in-cpp-stl/#
-    std::string s;
-    std::stringstream ss(strInput);
-    std::vector<std::string> v;
-    int wordCounter = 1;
-
-    // std::cout << "word id is " << gCurrentTrueWord.id << '\n';
-
-    while (getline(ss, s, ' ')) // could add "|| wordCounter != gCurrentTrueWord.id" 
-    {
-        wordCounter++;
-    }
-
-    return wordCounter - 1; //why do I have to -1 this?
-}
-
-std::string getWord(std::string filePath, int wordNumber)
-{
-
     //read TrueFull to get new current word
     std::ifstream inf{ filePath };
     if (!inf)
@@ -256,14 +246,11 @@ std::string getWord(std::string filePath, int wordNumber)
         wordCounter++;
     }
 
-    wordCounter--;
-
-    std::cout << "word is " << v[wordCounter] << '\n';
-
-    return v[wordCounter];
+    return v[wordCounter - 1];
 }
 
-int wordCounter(std::string filename)
+//one indexed
+int countWordsInFile(std::string filename)
 {
     std::string command{"wc -w "};
     std::string piped{" | grep '[[:digit:]]' -o"};
@@ -286,20 +273,20 @@ int wordCounter(std::string filename)
 
 bool checkIfBeginning()
 {
-    return (wordCounter("./trueText/TruePartial.txt") == 0) ? true : false;
+    return (countWordsInFile("./trueText/TruePartial.txt") == 0) ? true : false;
 }
 
 bool checkIfEnd()
 {
-    int truePartialCount = wordCounter(truePartialFile);
-    int trueFullCount = wordCounter(trueFullFile);
+    int truePartialCount = countWordsInFile(truePartialFile);
+    int trueFullCount = countWordsInFile(trueFullFile);
     return truePartialCount == trueFullCount;
 }
 
-void makeCurrentTrueWord(int wordCount)
+void makeCurrentTrueWordInDatabase(int wordCount)
 {
     //read next word in TrueFull.txt
-    std::string next_current_true_word = getWord("./trueText/TrueFull.txt", wordCount);
+    std::string next_current_true_word = getWordFromFileByWordNumber("./trueText/TrueFull.txt", wordCount);
     std::cout << "next word read from TrueFull.txt = " + next_current_true_word << '\n';
 
     //update current_true_word
@@ -310,7 +297,7 @@ void makeCurrentTrueWord(int wordCount)
 }
 
 #ifndef GTEST
-int main()
+int main(int argc, char *argv[])
 {
     connectToDatabase();
     if (checkIfEnd())
@@ -321,16 +308,24 @@ int main()
     {
         if (checkIfBeginning())
         {
-            makeCurrentTrueWord(0);
+            makeCurrentTrueWordInDatabase(0);
             std::cout << "first word added" << '\n';
         }
-        getCurrentWordAndWordNumber();
+        if (argc == 2)
+        {
+            gCurrentTrueWord.word = argv[1];
+        }
+        else
+        {
+            getCurrentWordAndWordNumberFromDatabase();
+        }
+
         // if (gFinalWord)
         // {
         //     std::cout << "last word complete, no need to run further" << '\n';
         //     return 0;
         // }
-        getVocab();
+        getKnownWordsFromDatabase();
         gGuessWord = gDBWords[getRandomNumber()];
         deleteTruePartialPlusGuessThenMakeNew();
         writeGuessWordToFile();
@@ -342,10 +337,10 @@ int main()
 
             //read TruePartial.txt to get word count
             //could instead execute "wc TruePartial.txt -w", but would have to somehow get that output
-            int wordCount = getWordCount("./trueText/TruePartial.txt");
+            int wordCount = countWordsInFile(truePartialFile);
             std::cout << "TruePartial word count = " << wordCount << '\n';
 
-            makeCurrentTrueWord(wordCount);
+            makeCurrentTrueWordInDatabase(wordCount - 1);
 
 
         }

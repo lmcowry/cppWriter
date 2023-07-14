@@ -1,5 +1,5 @@
-#ifndef GOOGLETEST_MAIN_H_
-#define GOOGLETEST_MAIN_H_
+#ifndef CPP_WRITER_H
+#define CPP_WRITER_H
 
 #include <fstream>
 #include <iostream>
@@ -17,9 +17,20 @@ class DatabaseWord
         std::string word;
 };
 
+static sqlite3* gDB;
+
+static std::vector<std::string> gDBWords;
+static std::vector<DatabaseWord> gCurrentWords;
+static DatabaseWord gCurrentTrueWord;
+static std::string gGuessWord;
+
+static const std::string truePartialFile = "./trueText/TruePartial.txt";
+static const std::string truePartialPlusGuessFile = "./trueText/TruePartialPlusGuess.txt";
+static const std::string trueFullFile = "./trueText/TrueFull.txt";
 
 
-int wordCounter(std::string filename);
+int countWordsInFile(std::string filename);
+std::string getWordFromFileByWordNumber(std::string filePath, int wordNumber);
 
 
-#endif // GOOGLETEST_MAIN_H_
+#endif // CPP_WRITER_H
