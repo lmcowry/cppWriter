@@ -273,7 +273,7 @@ int countWordsInFile(std::string filename)
 
 bool checkIfBeginning()
 {
-    return (countWordsInFile("./trueText/TruePartial.txt") == 0) ? true : false;
+    return (countWordsInFile("./trueText/TruePartialPlusGuess.txt") == 0) ? true : false;
 }
 
 bool checkIfEnd()
@@ -340,7 +340,7 @@ int main(int argc, char *argv[])
             int wordCount = countWordsInFile(truePartialFile);
             std::cout << "TruePartial word count = " << wordCount << '\n';
 
-            makeCurrentTrueWordInDatabase(wordCount - 1);
+            makeCurrentTrueWordInDatabase(wordCount);
 
 
         }
