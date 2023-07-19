@@ -104,7 +104,7 @@ void writeGuessWordToFile()
         std::exit(EXIT_FAILURE);
     }
 
-    outf << ' ' << gGuessWord;
+    outf << gGuessWord << ' ';
 }
 
 // zero indexed
