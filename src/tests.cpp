@@ -31,4 +31,16 @@ namespace
         observed = getWordFromFileByWordNumber(testTextFile, 3);
         EXPECT_EQ(expected, observed);
     }
+
+    TEST(containsPunctuation, Positive)
+    {
+        EXPECT_TRUE(containsPunctuation(",HELLO"));
+        EXPECT_TRUE(containsPunctuation("HEL,LO"));
+        EXPECT_TRUE(containsPunctuation("HELLO,"));
+    }
+
+    TEST(containsPunctuation, Negative)
+    {
+        EXPECT_FALSE(containsPunctuation("HELLO"));
+    }
 }

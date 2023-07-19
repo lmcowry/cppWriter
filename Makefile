@@ -13,10 +13,10 @@ researchExecutable := $(projectPath)/build/researchExecutable.o
 all: cppWriterExecutable researchExecutable 
 
 cppWriterExecutable: $(cppWriterFile)
-	g++ -o $(cppWriterExecutable) $(cppWriterFile) -l sqlite3 -g
+	g++ -Wextra -Werror -Wall -o $(cppWriterExecutable) $(cppWriterFile) -l sqlite3 -g
 
 researchExecutable: $(researchFile)
-	g++ -o $(researchExecutable) $(researchFile) -l sqlite3 -g
+	g++ -Wextra -Werror -Wall -o $(researchExecutable) $(researchFile) -l sqlite3 -g
 
 gtests: $(testFile) $(cppWriterFile)
 	g++ -Wextra -Werror -O3 -std=c++17 -pthread -g -D GTEST \
