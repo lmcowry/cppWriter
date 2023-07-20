@@ -282,10 +282,12 @@ int main(int argc, char *argv[])
             //update TruePartial.txt
             system("cp ./trueText/TruePartialPlusGuess.txt ./trueText/TruePartial.txt");
 
-            //read TruePartial.txt to get word count
-            int wordCount = countWordsInFile(truePartialFile);
-
-            makeNextTrueWordInDatabase(wordCount);
+            //read TruePartial.txt to get word count, as long as the final word has not been written
+            if (!checkIfEnd())
+            {
+                int wordCount = countWordsInFile(truePartialFile);
+                makeNextTrueWordInDatabase(wordCount);
+            }
         }
         else
         {

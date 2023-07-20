@@ -31,5 +31,16 @@ punctuation sensitive
 
 next up:
 make it ignore punctuation
+    7/20 - done
 make it case insensitive
+    7/20 - done
 make it not write a final duplicate to current_true_word
+    7/20 - done
+
+------
+
+7/20/23
+next steps:
+    maybe add a column to words_i_know for "guessed", and then add logic to the select so that guessed words aren't used
+        this would eliminate the need for any kind of unique constraint on words_i_know
+        but more importantly: it'd make it so that it's not just taking forever to run
