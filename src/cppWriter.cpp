@@ -6,9 +6,7 @@ static int callback(void* pObject, int, char** columnValues, char**)
     // std::cout << "in the callback" << '\n';
     if (std::vector<std::string>* word = reinterpret_cast<std::vector<std::string>*>(pObject))
     {
-        // std::cout << columnValues[1] << '\n';
-        word->push_back(columnValues[1]);
-        // std::cout << "push_back ed" << '\n';
+        word->push_back(columnValues[0]);
     }
 
     return 0;
@@ -133,8 +131,6 @@ std::string getWordFromFileByWordNumber(std::string filePath, int wordNumber)
     std::vector<std::string> v;
     int wordCounter = 0;
 
-    // std::cout << "word id is " << gCurrentTrueWord.id << '\n';
-
     while ((ss >> s) && wordCounter <= wordNumber) 
     {
         v.push_back(s);
@@ -154,7 +150,6 @@ int countWordsInFile(std::string filename)
     std::string command{"wc -w "};
     std::string piped{" | grep '[[:digit:]]' -o"};
     command += filename + piped;
-
 
     // from here: https://stackoverflow.com/questions/51810647/how-to-simply-use-console-commands-in-a-c-program
     char buffer[10];
@@ -182,45 +177,32 @@ bool checkIfEnd()
     return truePartialCount == trueFullCount;
 }
 
-void makeCurrentTrueWordInDatabase(int wordCount)
+void insertKnownWordInDatabase(std::string newWord)
+{
+    //insert current_true_word
+    std::string sql("INSERT INTO WORDS_I_KNOW(WORD) VALUES('" + newWord + "');");
+    char* error = nullptr;
+    int rc = sqlite3_exec(gDB, sql.c_str(), &callback, static_cast<void*>(&gDBWords), &error); //including callback, but shouldn't be called, since this is an insert
+    parseResponseCode(rc, "Operation OK!", "Error " + sql, error);
+}
+
+void insertCurrentTrueWordInDatabase(std::string newWord)
+{
+    //insert current_true_word
+    std::string sql("INSERT INTO CURRENT_TRUE_WORD(WORD) VALUES('" + newWord + "');");
+    char* error = nullptr;
+    int rc = sqlite3_exec(gDB, sql.c_str(), &callback, static_cast<void*>(&gDBWords), &error); //including callback, but shouldn't be called, since this is an insert
+    parseResponseCode(rc, "Operation OK!", "Error " + sql, error);
+}
+
+void makeNextTrueWordInDatabase(int wordCount)
 {
     //read next word in TrueFull.txt
     std::string next_current_true_word = getWordFromFileByWordNumber("./trueText/TrueFull.txt", wordCount);
     std::cout << "next word read from TrueFull.txt = " + next_current_true_word << '\n';
 
     //update current_true_word
-    std::string sql("INSERT INTO CURRENT_TRUE_WORD(WORD) VALUES('" + next_current_true_word + "');");
-    char* error = nullptr;
-    int rc = sqlite3_exec(gDB, sql.c_str(), &callback, static_cast<void*>(&gDBWords), &error); //including callback, but shouldn't be called, since this is an insert
-    parseResponseCode(rc, "Operation OK!", "Error " + sql, error);
-}
-
-bool stripPunctuation(std::string* input)
-{
-    for (uint i = 0; i < input->length(); i++)
-    {
-        //some from https://stackoverflow.com/questions/34379606/how-could-i-count-some-punctuation-marks-which-the-function-ispunct-doesnt-have
-        static const std::string punctuations(".,-;:'\"()?");
-        if (punctuations.find(input[i]) != std::string::npos)
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool containsPunctuation(std::string input)
-{
-    for (uint i = 0; i < input.length(); i++)
-    {
-        //some from https://stackoverflow.com/questions/34379606/how-could-i-count-some-punctuation-marks-which-the-function-ispunct-doesnt-have
-        static const std::string punctuations(".,-;:'\"()?");
-        if (punctuations.find(input[i]) != std::string::npos)
-        {
-            return true;
-        }
-    }
-    return false;
+    insertCurrentTrueWordInDatabase(next_current_true_word);
 }
 
 std::string stripPunctuation(std::string input)
@@ -261,7 +243,7 @@ int main(int argc, char *argv[])
     {
         if (checkIfBeginning())
         {
-            makeCurrentTrueWordInDatabase(0);
+            makeNextTrueWordInDatabase(0);
         }
 
         getCurrentWordAndWordNumberFromDatabase();
@@ -279,6 +261,14 @@ int main(int argc, char *argv[])
             gGuessWord = argv[1];
             gCurrentTrueWord.word = argv[2];
         }
+        else if (argc == 4)
+        {
+            //forces a particular guess, answer, and adds word to known words
+            gGuessWord = argv[1];
+            gCurrentTrueWord.word = argv[2];
+            std::string newWord = argv[3];
+            insertKnownWordInDatabase(newWord);
+        }
 
         deleteTruePartialPlusGuessThenMakeNew();
         
@@ -295,7 +285,7 @@ int main(int argc, char *argv[])
             //read TruePartial.txt to get word count
             int wordCount = countWordsInFile(truePartialFile);
 
-            makeCurrentTrueWordInDatabase(wordCount);
+            makeNextTrueWordInDatabase(wordCount);
         }
         else
         {
