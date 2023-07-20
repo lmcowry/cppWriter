@@ -7,6 +7,7 @@
 #include <sstream>
 
 #include <random>
+#include <algorithm>
 
 #include <sqlite3.h>
 

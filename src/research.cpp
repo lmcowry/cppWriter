@@ -3,6 +3,7 @@
 #include <vector>
 #include <sstream>
 #include <fstream>
+#include <algorithm>
 
 // #include <random>
 
@@ -125,18 +126,56 @@ std::string getWord(std::string filePath, int wordNumber)
     return v[wordCounter];
 }
 
+std::string stripPunctuation(std::string input)
+{
+    std::string newString;
+    for (uint i = 0; i < input.length(); i++)
+    {
+        //some from https://stackoverflow.com/questions/34379606/how-could-i-count-some-punctuation-marks-which-the-function-ispunct-doesnt-have
+        static const std::string punctuations(".,-;:'\"()?");
+        if (punctuations.find(input[i]) != std::string::npos)
+        {
+
+        }
+        else
+        {
+            newString += input[i];
+        }
+    }
+    return newString;
+}
+
+//I just can't remember off the top of my head how to
+//pass by reference, whether the argument is a dereferenced pointer or a regular value
+//this is my notes for it
+void practice(int& x)
+{
+    x = 5;
+    std::cout << "within practice, x is " << x << '\n';
+}
+
+void practiceCaller()
+{
+    int myNumber = 7;
+    std::cout << myNumber << '\n';
+    practice(myNumber);
+    std::cout << myNumber << '\n';
+
+    int z = 6;
+    int* pMyNumber = &z;
+    std::cout << *pMyNumber << '\n';
+    practice(*pMyNumber);
+    std::cout << *pMyNumber << '\n';
+}
+
+void upperCase(std::string x)
+{
+    std::cout << x << '\n';
+    std::transform(x.begin(), x.end(), x.begin(), ::toupper);
+    std::cout << x << '\n';
+}
 
 int main()
 {
-    // std::string word = getWord("/home/samuel_sewall/cppWriter/TrueFull.txt", 0);
-    // std::cout << word << '\n';
-    // system("pwd");
-        if (__cplusplus == 202101L) std::cout << "C++23";
-    else if (__cplusplus == 202002L) std::cout << "C++20";
-    else if (__cplusplus == 201703L) std::cout << "C++17";
-    else if (__cplusplus == 201402L) std::cout << "C++14";
-    else if (__cplusplus == 201103L) std::cout << "C++11";
-    else if (__cplusplus == 199711L) std::cout << "C++98";
-    else std::cout << "pre-standard C++." << __cplusplus;
-    std::cout << "\n";
+    upperCase("hel,lo");
 }

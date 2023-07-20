@@ -39,13 +39,11 @@ void connectToDatabase()
         std::cerr << "Error open DB " << sqlite3_errmsg(gDB) << '\n';
         std::exit(EXIT_FAILURE);
     }
-    else
-    {
-        std::cout << "Opened Database Successfully!" << '\n';
-    }
+    //database opened successfully
 }
 
-void parseResponseCode(int rc, std::string successMessage, std::string errorMessage, char* longErrorMessage)
+//second parameter is successMessage. not really needed, but I want to keep in case, and I don't want the unused variable error
+void parseResponseCode(int rc, std::string, std::string errorMessage, char* longErrorMessage)
 {
     if (rc != SQLITE_OK)
     {
@@ -54,7 +52,7 @@ void parseResponseCode(int rc, std::string successMessage, std::string errorMess
     }
     else
     {
-        std::cout << successMessage << '\n';
+        // std::cout << successMessage << '\n';
     }
 }
 
@@ -74,7 +72,6 @@ void getCurrentWordAndWordNumberFromDatabase()
     int rc = sqlite3_exec(gDB, sql.c_str(), &callbackWithClass, static_cast<void*>(&gCurrentWords), &error);
     parseResponseCode(rc, "Operation OK!", "Error " + sql, error);
     gCurrentTrueWord = gCurrentWords[0];
-    std::cout << "gCurrentTrueWord is " << gCurrentTrueWord.word << '\n';
 }
 
 int getRandomNumber()
@@ -93,7 +90,7 @@ void deleteTruePartialPlusGuessThenMakeNew()
     system("cp ./trueText/TruePartial.txt ./trueText/TruePartialPlusGuess.txt");
 }
 
-void writeGuessWordToFile()
+void writeGuessWordToFile(std::string word)
 {
     //from https://www.learncpp.com/cpp-tutorial/basic-file-io/
     std::ofstream outf{ "./trueText/TruePartialPlusGuess.txt", std::ios::app };
@@ -104,7 +101,7 @@ void writeGuessWordToFile()
         std::exit(EXIT_FAILURE);
     }
 
-    outf << gGuessWord << ' ';
+    outf << word << ' ';
 }
 
 // zero indexed
@@ -198,6 +195,20 @@ void makeCurrentTrueWordInDatabase(int wordCount)
     parseResponseCode(rc, "Operation OK!", "Error " + sql, error);
 }
 
+bool stripPunctuation(std::string* input)
+{
+    for (uint i = 0; i < input->length(); i++)
+    {
+        //some from https://stackoverflow.com/questions/34379606/how-could-i-count-some-punctuation-marks-which-the-function-ispunct-doesnt-have
+        static const std::string punctuations(".,-;:'\"()?");
+        if (punctuations.find(input[i]) != std::string::npos)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool containsPunctuation(std::string input)
 {
     for (uint i = 0; i < input.length(); i++)
@@ -210,12 +221,32 @@ bool containsPunctuation(std::string input)
         }
     }
     return false;
-
 }
 
-bool checkGuessWord()
+std::string stripPunctuation(std::string input)
 {
-    return gGuessWord == gCurrentTrueWord.word;
+    std::string output = "";
+    for (uint i = 0; i < input.length(); i++)
+    {
+        //some from https://stackoverflow.com/questions/34379606/how-could-i-count-some-punctuation-marks-which-the-function-ispunct-doesnt-have
+        static const std::string punctuations(".,-;:'\"()?");
+        if (punctuations.find(input[i]) != std::string::npos)
+        {
+
+        }
+        else
+        {
+            output += input[i];
+        }
+    }
+    return output;
+}
+
+bool checkGuessWord(std::string guess, std::string answer)
+{
+    std::transform(guess.begin(), guess.end(), guess.begin(), ::toupper);
+    std::transform(answer.begin(), answer.end(), answer.begin(), ::toupper);
+    return guess == stripPunctuation(answer);
 }
 
 #ifndef GTEST
@@ -231,36 +262,45 @@ int main(int argc, char *argv[])
         if (checkIfBeginning())
         {
             makeCurrentTrueWordInDatabase(0);
-            std::cout << "first word added" << '\n';
-        }
-        if (argc == 2)
-        {
-            gCurrentTrueWord.word = argv[1];
-        }
-        else
-        {
-            getCurrentWordAndWordNumberFromDatabase();
         }
 
+        getCurrentWordAndWordNumberFromDatabase();
         getKnownWordsFromDatabase();
         gGuessWord = gDBWords[getRandomNumber()];
+
+        if (argc == 2)
+        {
+            //forces a particular guess
+            gGuessWord = argv[1];
+        }
+        else if (argc == 3)
+        {
+            //forces a particular guess and answer
+            gGuessWord = argv[1];
+            gCurrentTrueWord.word = argv[2];
+        }
+
         deleteTruePartialPlusGuessThenMakeNew();
-        writeGuessWordToFile();
+        
         std::cout << "gGuessWord is " << gGuessWord << " and currentTrueWord is " << gCurrentTrueWord.word << '\n';
 
-        if (checkGuessWord())
+        if (checkGuessWord(gGuessWord, gCurrentTrueWord.word))
         {
+            //write database word to file since that'll have punctuation
+            writeGuessWordToFile(gCurrentTrueWord.word);
+
             //update TruePartial.txt
             system("cp ./trueText/TruePartialPlusGuess.txt ./trueText/TruePartial.txt");
 
             //read TruePartial.txt to get word count
-            //could instead execute "wc TruePartial.txt -w", but would have to somehow get that output
             int wordCount = countWordsInFile(truePartialFile);
-            std::cout << "TruePartial word count = " << wordCount << '\n';
 
             makeCurrentTrueWordInDatabase(wordCount);
-
-
+        }
+        else
+        {
+            //write guess word to file since it's not correct
+            writeGuessWordToFile(gGuessWord);
         }
     }
     sqlite3_close(gDB);
