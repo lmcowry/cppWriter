@@ -54,12 +54,13 @@ void parseResponseCode(int rc, std::string, std::string errorMessage, char* long
     }
 }
 
-void getKnownWordsFromDatabase()
+int getKnownWordsFromDatabase()
 {
-    std::string sql("SELECT * FROM WORDS_I_KNOW");
+    std::string sql("SELECT WORD FROM WORDS_I_KNOW WHERE GUESSED = FALSE");
     char* error = nullptr;
     int rc = sqlite3_exec(gDB, sql.c_str(), &callback, static_cast<void*>(&gDBWords), &error);
     parseResponseCode(rc, "Operation OK!", "Error " + sql, error);
+    return gDBWords.size();
 }
 
 void getCurrentWordAndWordNumberFromDatabase()
@@ -115,7 +116,7 @@ std::string getWordFromFileByWordNumber(std::string filePath, int wordNumber)
         std::exit(EXIT_FAILURE);
     }
     std::string strInput;
-    int counter = 0;
+    int counter = 0; //todo: what was my intent with this counter?
     while (inf)
     {
         // read stuff from the file into a string
@@ -148,7 +149,7 @@ std::string getWordFromFileByWordNumber(std::string filePath, int wordNumber)
 int countWordsInFile(std::string filename)
 {
     std::string command{"wc -w "};
-    std::string piped{" | grep '[[:digit:]]' -o"};
+    std::string piped{" | grep '[[:digit:]].' -o"};
     command += filename + piped;
 
     // from here: https://stackoverflow.com/questions/51810647/how-to-simply-use-console-commands-in-a-c-program
@@ -167,7 +168,7 @@ int countWordsInFile(std::string filename)
 
 bool checkIfBeginning()
 {
-    return (countWordsInFile("./trueText/TruePartialPlusGuess.txt") == 0) ? true : false;
+    return (countWordsInFile(truePartialPlusGuessFile) == 0) ? true : false;
 }
 
 bool checkIfEnd()
@@ -191,14 +192,32 @@ void insertCurrentTrueWordInDatabase(std::string newWord)
     //insert current_true_word
     std::string sql("INSERT INTO CURRENT_TRUE_WORD(WORD) VALUES('" + newWord + "');");
     char* error = nullptr;
-    int rc = sqlite3_exec(gDB, sql.c_str(), &callback, static_cast<void*>(&gDBWords), &error); //including callback, but shouldn't be called, since this is an insert
+    int rc = sqlite3_exec(gDB, sql.c_str(), &callback, static_cast<void*>(&gDBWords), &error); //including callback, but shouldn't be called, since this is an insert. same with gDBWords
+    parseResponseCode(rc, "Operation OK!", "Error " + sql, error);
+}
+
+void markAllWordsAsUnguessed()
+{
+    //set all words to unguessed
+    std::string sql("UPDATE WORDS_I_KNOW SET GUESSED = 0;");
+    char* error = nullptr;
+    int rc = sqlite3_exec(gDB, sql.c_str(), &callback, static_cast<void*>(&gDBWords), &error); //including callback, but shouldn't be called, since this is an insert. same with gDBWords
+    parseResponseCode(rc, "Operation OK!", "Error " + sql, error);
+}
+
+void markGuessWordAsGuessed(std::string guessWord)
+{
+    //set specific word to guessed
+    std::string sql("UPDATE WORDS_I_KNOW SET GUESSED = 1 WHERE WORD = '" + guessWord + "';");
+    char* error = nullptr;
+    int rc = sqlite3_exec(gDB, sql.c_str(), &callback, static_cast<void*>(&gDBWords), &error); //including callback, but shouldn't be called, since this is an insert. same with gDBWords
     parseResponseCode(rc, "Operation OK!", "Error " + sql, error);
 }
 
 void makeNextTrueWordInDatabase(int wordCount)
 {
     //read next word in TrueFull.txt
-    std::string next_current_true_word = getWordFromFileByWordNumber("./trueText/TrueFull.txt", wordCount);
+    std::string next_current_true_word = getWordFromFileByWordNumber(trueFullFile, wordCount);
     std::cout << "next word read from TrueFull.txt = " + next_current_true_word << '\n';
 
     //update current_true_word
@@ -247,7 +266,15 @@ int main(int argc, char *argv[])
         }
 
         getCurrentWordAndWordNumberFromDatabase();
-        getKnownWordsFromDatabase();
+
+        //if all words have been guessed, or if no words in words_i_know, insert true word into it
+        if (getKnownWordsFromDatabase() == 0)
+        {
+            std::string currentTrueWordNoPunctuation = stripPunctuation(gCurrentTrueWord.word);
+            insertKnownWordInDatabase(currentTrueWordNoPunctuation);
+
+            gDBWords.push_back(currentTrueWordNoPunctuation);
+        }
         gGuessWord = gDBWords[getRandomNumber()];
 
         if (argc == 2)
@@ -288,12 +315,16 @@ int main(int argc, char *argv[])
                 int wordCount = countWordsInFile(truePartialFile);
                 makeNextTrueWordInDatabase(wordCount);
             }
+            markAllWordsAsUnguessed();
         }
         else
         {
             //write guess word to file since it's not correct
             writeGuessWordToFile(gGuessWord);
+            markGuessWordAsGuessed(gGuessWord);
         }
+
+
     }
     sqlite3_close(gDB);
     return 0;

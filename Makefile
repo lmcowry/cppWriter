@@ -34,6 +34,7 @@ reset: clearDB clearPartialText
 
 clearDB:
 	sqlite3 db/CppWriterDB.db "delete from current_true_word"
+	sqlite3 db/CppWriterDB.db "update words_i_know set guessed = 0"
 
 clearPartialText:
 	truncate -s 0 $(truePartialTextFile)

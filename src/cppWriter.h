@@ -31,7 +31,7 @@ static const std::string trueFullFile = "./trueText/TrueFull.txt";
 
 
 int countWordsInFile(std::string filename);
-bool containsPunctuation(std::string input);
+std::string stripPunctuation(std::string input);
 std::string getWordFromFileByWordNumber(std::string filePath, int wordNumber);
 
 

@@ -39,8 +39,25 @@ make it not write a final duplicate to current_true_word
 
 ------
 
+
+
 7/20/23
 next steps:
     maybe add a column to words_i_know for "guessed", and then add logic to the select so that guessed words aren't used
         this would eliminate the need for any kind of unique constraint on words_i_know
         but more importantly: it'd make it so that it's not just taking forever to run
+        7/23/23 - done
+    could also add logic to check: if all words have been guessed, and still no answer, then add the answer to words_i_know
+        7/23/23 - done
+
+7/22/23
+other things I want to make:
+    some way to import a list of words into words_i_know
+    some way to show this on a browser
+        ideally would have something to show that the last word is wrong/right
+    some way to have browser give it new words?
+
+7/23/23
+    also, get it running on windows laptop
+    get it to handle multiple lines from TrueFull
+    figure out how to get git to have blank text files and ignore new stuff in them.

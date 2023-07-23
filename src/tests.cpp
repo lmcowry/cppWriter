@@ -32,15 +32,15 @@ namespace
         EXPECT_EQ(expected, observed);
     }
 
-    TEST(containsPunctuation, Positive)
+    TEST(stripPunctuation, With)
     {
-        EXPECT_TRUE(containsPunctuation(",HELLO"));
-        EXPECT_TRUE(containsPunctuation("HEL,LO"));
-        EXPECT_TRUE(containsPunctuation("HELLO,"));
+        EXPECT_EQ("HELLO", stripPunctuation(",HELLO"));
+        EXPECT_EQ("HELLO", stripPunctuation("HEL,LO"));
+        EXPECT_EQ("HELLO", stripPunctuation("HELLO,"));
     }
 
-    TEST(containsPunctuation, Negative)
+    TEST(containsPunctuation, Without)
     {
-        EXPECT_FALSE(containsPunctuation("HELLO"));
+        EXPECT_EQ("HELLO", stripPunctuation("HELLO"));
     }
 }
