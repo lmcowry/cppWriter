@@ -20,7 +20,7 @@ makeTrueTextFiles:
 	rm -rf $(projectPath)/trueText
 	mkdir $(projectPath)/trueText
 	touch $(trueFullTextFile)
-	echo "HELLO, my name is Christian. This is my novelty project."
+	echo "HELLO, my name is Christian. This is my novelty project." >> $(trueFullTextFile)
 	# double check that below are even needed
 	touch $(truePartialTextFile)
 	touch $(truePartialPlusGuessTextFile)
