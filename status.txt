@@ -62,3 +62,6 @@ other things I want to make:
     get it to handle multiple lines from TrueFull
     figure out how to get git to have blank text files and ignore new stuff in them.
     have the schemas in the make file?
+
+7/25/23
+    put howToBuildGTests into Makefile

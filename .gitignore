@@ -1,5 +1,7 @@
 build/*
 db/*
 trueText/*
+googleCode/*
+testText/*
 !*/explain.txt
 !db/*.sql
