@@ -1,3 +1,9 @@
+# make clean
+## cleans executables
+# make reset
+## cleans database (doesn't touch words_i_know) and truncates TruePartial.txt and TruePartialPlusGuess.txt
+
+# vocab notes:
 # targets: prerequisites
 # 	command
 #variable := value
@@ -21,7 +27,6 @@ makeTrueTextFiles:
 	mkdir $(projectPath)/trueText
 	touch $(trueFullTextFile)
 	echo "HELLO, my name is Christian. This is my novelty project." >> $(trueFullTextFile)
-	# double check that below are even needed
 	touch $(truePartialTextFile)
 	touch $(truePartialPlusGuessTextFile)
 
@@ -35,8 +40,9 @@ makeTestTextFile:
 	rm -f $(testTextFile)
 	mkdir -p $(projectPath)/testText
 	touch $(testTextFile)
-	echo "hello there" >> $(testTextFile)
-	echo "good bye" >> $(testTextFile) 
+	echo "hello there good bye " >> $(testTextFile)
+	# echo "hello there" >> $(testTextFile) 
+	# echo "good bye" >> $(testTextFile) 
 
 gtests: makeTestTextFile $(testFile) $(cppWriterFile)
 	g++ -Wextra -Werror -O3 -std=c++17 -pthread -g -D GTEST \

@@ -30,14 +30,13 @@ static int callbackWithClass(void* pObject, int, char** columnValues, char**)
 void connectToDatabase()
 {
     int exit = 0;
-    exit = sqlite3_open("./db/CppWriterDB.db", &gDB); // whatever I put here, it'll create a new database
+    exit = sqlite3_open("./db/CppWriterDB.db", &gDB); // creates new database if one doesn't already exist
 
     if (exit)
     {
         std::cerr << "Error open DB " << sqlite3_errmsg(gDB) << '\n';
         std::exit(EXIT_FAILURE);
     }
-    //database opened successfully
 }
 
 //second parameter is successMessage. not really needed, but I want to keep in case, and I don't want the unused variable error
@@ -47,10 +46,6 @@ void parseResponseCode(int rc, std::string, std::string errorMessage, char* long
     {
         std::cerr << errorMessage << '\n';
         std::cerr << longErrorMessage << '\n';
-    }
-    else
-    {
-        // std::cout << successMessage << '\n';
     }
 }
 
@@ -65,7 +60,6 @@ int getKnownWordsFromDatabase()
 
 void getCurrentWordAndWordNumberFromDatabase()
 {
-    
     std::string sql("SELECT ROWID, WORD FROM CURRENT_TRUE_WORD WHERE ROWID = (SELECT MAX(ROWID) FROM CURRENT_TRUE_WORD)");
     char* error = nullptr;
     int rc = sqlite3_exec(gDB, sql.c_str(), &callbackWithClass, static_cast<void*>(&gCurrentWords), &error);
@@ -116,13 +110,11 @@ std::string getWordFromFileByWordNumber(std::string filePath, int wordNumber)
         std::exit(EXIT_FAILURE);
     }
     std::string strInput;
-    int counter = 0; //todo: what was my intent with this counter?
     while (inf)
     {
         // read stuff from the file into a string
         std::getline(inf, strInput);
         inf >> strInput;
-        counter++;
     }
 
     // split strInput into vector of strings, split by spaces
@@ -135,10 +127,6 @@ std::string getWordFromFileByWordNumber(std::string filePath, int wordNumber)
     while ((ss >> s) && wordCounter <= wordNumber) 
     {
         v.push_back(s);
-        // if (wordCounter == wordNumber)
-        // {
-        //     gFinalWord = true;
-        // }
         wordCounter++;
     }
 
@@ -180,7 +168,6 @@ bool checkIfEnd()
 
 void insertKnownWordInDatabase(std::string newWord)
 {
-    //insert current_true_word
     std::string sql("INSERT INTO WORDS_I_KNOW(WORD) VALUES('" + newWord + "');");
     char* error = nullptr;
     int rc = sqlite3_exec(gDB, sql.c_str(), &callback, static_cast<void*>(&gDBWords), &error); //including callback, but shouldn't be called, since this is an insert
@@ -251,6 +238,12 @@ bool checkGuessWord(std::string guess, std::string answer)
 }
 
 #ifndef GTEST
+// executable hello
+// forces hello as the guess
+// executable hello goodbye
+// forces hello as the guess and goodbye as the answer
+// executable hello goodbye nowleave
+// forces hello as the guess, goodbye as the answer, and inserts now leave into database of known words
 int main(int argc, char *argv[])
 {
     connectToDatabase();
@@ -303,7 +296,7 @@ int main(int argc, char *argv[])
 
         if (checkGuessWord(gGuessWord, gCurrentTrueWord.word))
         {
-            //write database word to file since that'll have punctuation
+            //write database word to file since that'll have correct punctuation
             writeGuessWordToFile(gCurrentTrueWord.word);
 
             //update TruePartial.txt
@@ -323,11 +316,8 @@ int main(int argc, char *argv[])
             writeGuessWordToFile(gGuessWord);
             markGuessWordAsGuessed(gGuessWord);
         }
-
-
     }
     sqlite3_close(gDB);
     return 0;
-    
 }
 #endif

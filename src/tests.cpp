@@ -10,7 +10,7 @@ namespace
 
     TEST(countWordsInFile, Positive)
     {
-        EXPECT_EQ(2, countWordsInFile(testTextFile));
+        EXPECT_EQ(4, countWordsInFile(testTextFile));
     }
 
     TEST(getWordFromFileByWordNumber, Positive)
@@ -23,11 +23,11 @@ namespace
         observed = getWordFromFileByWordNumber(testTextFile, 1);
         EXPECT_EQ(expected, observed);
 
-        expected = "there";
+        expected = "good";
         observed = getWordFromFileByWordNumber(testTextFile, 2);
         EXPECT_EQ(expected, observed);
 
-        expected = "there";
+        expected = "bye";
         observed = getWordFromFileByWordNumber(testTextFile, 3);
         EXPECT_EQ(expected, observed);
     }
