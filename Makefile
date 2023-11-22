@@ -40,9 +40,9 @@ makeTestTextFile:
 	rm -f $(testTextFile)
 	mkdir -p $(projectPath)/testText
 	touch $(testTextFile)
-	echo "hello there good bye " >> $(testTextFile)
-	# echo "hello there" >> $(testTextFile) 
-	# echo "good bye" >> $(testTextFile) 
+	# echo "hello there good bye " >> $(testTextFile)
+	echo "hello there" >> $(testTextFile) 
+	echo "good bye" >> $(testTextFile) 
 
 gtests: makeTestTextFile $(testFile) $(cppWriterFile)
 	g++ -Wextra -Werror -O3 -std=c++17 -pthread -g -D GTEST \
